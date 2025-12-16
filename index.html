@@ -60,12 +60,12 @@
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 20px;
         }
         .mode-btn {
-            padding: 10px 15px;
-            font-size: 0.95em;
+            padding: 8px 15px;
+            font-size: 0.9em;
             border: 2px solid #3498db;
             background-color: white;
             color: #3498db;
@@ -73,6 +73,7 @@
             cursor: pointer;
             transition: all 0.3s;
             font-weight: bold;
+            margin-bottom: 5px;
         }
         .mode-btn.active {
             background-color: #3498db;
@@ -82,9 +83,20 @@
         .mode-btn:hover:not(.active) {
             background-color: #eaf6fd;
         }
+        
+        /* 모드 그룹 구분용 스타일 */
+        .mode-group-label {
+            width: 100%;
+            text-align: center;
+            font-size: 0.85em;
+            color: #7f8c8d;
+            margin: 5px 0 2px 0;
+            font-weight: bold;
+        }
+
         .shuffle-btn {
-            padding: 10px 15px;
-            font-size: 0.95em;
+            padding: 8px 15px;
+            font-size: 0.9em;
             border: 2px solid #e67e22;
             background-color: white;
             color: #e67e22;
@@ -92,6 +104,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
+            margin-left: 10px;
         }
         .shuffle-btn:hover {
             background-color: #fdf2e9;
@@ -258,11 +271,20 @@
 
     <div id="view-daily" class="view-section">
         <div class="control-panel">
-            <button class="mode-btn active" id="btn-daily-reading" onclick="setDailyMode('reading')">1. 한자 읽기</button>
-            <button class="mode-btn" id="btn-daily-meaning" onclick="setDailyMode('meaning')">2. 뜻 보고 쓰기</button>
-            <button class="mode-btn" id="btn-daily-masu" onclick="setDailyMode('masu')">3. ~ます형</button>
-            <button class="mode-btn" id="btn-daily-masen" onclick="setDailyMode('masen')">4. ~ません형</button>
-            <button class="mode-btn" id="btn-daily-te" onclick="setDailyMode('te')">5. ~て형(연결형)</button>
+            <div class="mode-group-label">--- 1단계: 기본 연습 ---</div>
+            <button class="mode-btn active" id="btn-daily-reading" onclick="setDailyMode('reading')">한자 읽기</button>
+            <button class="mode-btn" id="btn-daily-meaning" onclick="setDailyMode('meaning')">뜻 보고 기본형</button>
+            
+            <div class="mode-group-label">--- 2단계: 한자 보고 활용 ---</div>
+            <button class="mode-btn" id="btn-daily-masu" onclick="setDailyMode('masu')">한자 → ~ます</button>
+            <button class="mode-btn" id="btn-daily-masen" onclick="setDailyMode('masen')">한자 → ~ません</button>
+            <button class="mode-btn" id="btn-daily-te" onclick="setDailyMode('te')">한자 → ~て(연결)</button>
+
+            <div class="mode-group-label">--- 3단계: 뜻 보고 활용 (NEW) ---</div>
+            <button class="mode-btn" id="btn-daily-meaning-masu" onclick="setDailyMode('meaning_masu')">뜻 → ~ます</button>
+            <button class="mode-btn" id="btn-daily-meaning-masen" onclick="setDailyMode('meaning_masen')">뜻 → ~ません</button>
+            <button class="mode-btn" id="btn-daily-meaning-te" onclick="setDailyMode('meaning_te')">뜻 → ~て(연결)</button>
+            
             <button class="shuffle-btn" onclick="shuffleDaily()">🔄 섞기</button>
         </div>
         <div class="intro" id="daily-intro"></div>
@@ -351,7 +373,7 @@
             { id: 'd30', q: "6월 30일", a: "ろくがつ さんじゅうにち" }
         ];
 
-        // [데이터 3] 하루 일정 퀴즈 (확장됨: masu, masen, te 추가)
+        // [데이터 3] 하루 일정 퀴즈
         const dailyQuizData = [
             { id: 1, korean: "아침에 일어나다", kanji: "朝、起きる", answer: "あさ、おきる", masu: "あさ、おきます", masen: "あさ、おきません", te: "あさ、おきて" },
             { id: 2, korean: "밥을 먹다", kanji: "ごはんを食べる", answer: "ごはんをたべる", masu: "ごはんをたべます", masen: "ごはんをたべません", te: "ごはんをたべて" },
@@ -618,30 +640,35 @@
         }
 
         // ==========================================
-        // 6. 하루 일정 퀴즈 (Daily Routine) - 확장됨
+        // 6. 하루 일정 퀴즈 (Daily Routine) - 8가지 모드
         // ==========================================
         function setDailyMode(mode) {
             dailyMode = mode;
             // 버튼 활성화 상태 초기화
             document.querySelectorAll('#view-daily .mode-btn').forEach(btn => btn.classList.remove('active'));
             
-            // 선택된 버튼 활성화 및 설명 텍스트 설정
+            // 버튼 활성화
+            const btnId = 'btn-daily-' + mode.replace('_', '-');
+            const btn = document.getElementById(btnId);
+            if (btn) btn.classList.add('active');
+            
             let introText = "";
             if (mode === 'reading') {
-                document.getElementById('btn-daily-reading').classList.add('active');
                 introText = `<h3>📖 한자 읽기 (히라가나)</h3><ul><li>일본어 문장을 보고 <strong>히라가나</strong>로 읽는 법을 쓰세요.</li></ul>`;
             } else if (mode === 'meaning') {
-                document.getElementById('btn-daily-meaning').classList.add('active');
-                introText = `<h3>📝 뜻 보고 쓰기</h3><ul><li>한국어 뜻을 보고 일본어 문장(기본형)을 쓰세요.</li></ul>`;
+                introText = `<h3>📝 뜻 보고 기본형 쓰기</h3><ul><li>한국어 뜻을 보고 <strong>기본형 문장</strong>을 쓰세요.</li></ul>`;
             } else if (mode === 'masu') {
-                document.getElementById('btn-daily-masu').classList.add('active');
-                introText = `<h3>🔧 ~ます형 바꾸기</h3><ul><li>제시된 기본형 문장을 <strong>정중형(~ます)</strong>으로 바꿔 쓰세요.<br>예: 起きる → おきます</li></ul>`;
+                introText = `<h3>🔧 한자 → ~ます형</h3><ul><li>제시된 일본어 문장을 <strong>정중형(~ます)</strong>으로 바꿔 쓰세요.</li></ul>`;
             } else if (mode === 'masen') {
-                document.getElementById('btn-daily-masen').classList.add('active');
-                introText = `<h3>🔧 ~ません형 바꾸기</h3><ul><li>제시된 기본형 문장을 <strong>부정형(~ません)</strong>으로 바꿔 쓰세요.<br>예: 起きる → おきません</li></ul>`;
+                introText = `<h3>🔧 한자 → ~ません형</h3><ul><li>제시된 일본어 문장을 <strong>부정형(~ません)</strong>으로 바꿔 쓰세요.</li></ul>`;
             } else if (mode === 'te') {
-                document.getElementById('btn-daily-te').classList.add('active');
-                introText = `<h3>🔗 ~て형(연결형) 바꾸기</h3><ul><li>제시된 기본형 문장을 <strong>연결형(~て/で)</strong>으로 바꿔 쓰세요.<br>예: 買う → かって, 読む → よんで</li></ul>`;
+                introText = `<h3>🔗 한자 → ~て형</h3><ul><li>제시된 일본어 문장을 <strong>연결형(~て/で)</strong>으로 바꿔 쓰세요.</li></ul>`;
+            } else if (mode === 'meaning_masu') {
+                introText = `<h3>🇰🇷 뜻 → ~ます형</h3><ul><li>한국어 뜻을 보고 <strong>정중형(~ます)</strong>으로 작문하세요.</li></ul>`;
+            } else if (mode === 'meaning_masen') {
+                introText = `<h3>🇰🇷 뜻 → ~ません형</h3><ul><li>한국어 뜻을 보고 <strong>부정형(~ません)</strong>으로 작문하세요.</li></ul>`;
+            } else if (mode === 'meaning_te') {
+                introText = `<h3>🇰🇷 뜻 → ~て형</h3><ul><li>한국어 뜻을 보고 <strong>연결형(~て/で)</strong>으로 작문하세요.</li></ul>`;
             }
             
             document.getElementById('daily-intro').innerHTML = introText;
@@ -661,23 +688,26 @@
             container.innerHTML = '';
             currentDailyList.forEach((q, index) => {
                 const div = document.createElement('div');
-                div.className = `quiz-container ${['reading', 'masu', 'masen', 'te'].includes(dailyMode) ? 'mode-kanji' : ''}`;
+                
+                // 한자가 보이는 모드인지 확인
+                const showKanji = ['reading', 'masu', 'masen', 'te'].includes(dailyMode);
+                div.className = `quiz-container ${showKanji ? 'mode-kanji' : ''}`;
                 
                 // 모드에 따라 문제 텍스트 결정
                 let qText = "";
-                if (['reading', 'masu', 'masen', 'te'].includes(dailyMode)) {
-                    qText = q.kanji; // 기본 한자 문장
+                if (showKanji) {
+                    qText = q.kanji; 
                 } else {
-                    qText = q.korean; // 뜻
+                    qText = q.korean; 
                 }
 
                 // 모드에 따라 플레이스홀더 결정
                 let place = "";
-                if (dailyMode === 'reading') place = "히라가나로 읽는 법을 쓰세요";
-                else if (dailyMode === 'meaning') place = "일본어로 작문하세요";
-                else if (dailyMode === 'masu') place = "~ます형으로 바꾸세요 (히라가나)";
-                else if (dailyMode === 'masen') place = "~ません형으로 바꾸세요 (히라가나)";
-                else if (dailyMode === 'te') place = "~て형으로 바꾸세요 (히라가나)";
+                if (dailyMode === 'reading') place = "히라가나로 읽는 법";
+                else if (dailyMode === 'meaning') place = "일본어 기본형 작문";
+                else if (dailyMode === 'masu' || dailyMode === 'meaning_masu') place = "~ます형으로 작문";
+                else if (dailyMode === 'masen' || dailyMode === 'meaning_masen') place = "~ません형으로 작문";
+                else if (dailyMode === 'te' || dailyMode === 'meaning_te') place = "~て형으로 작문";
 
                 div.innerHTML = `
                     <span class="question-label">문제 ${index + 1}</span>
@@ -702,11 +732,10 @@
 
             // 모드에 따라 정답 데이터 결정
             let correctAns = "";
-            if (dailyMode === 'reading') correctAns = data.answer;
-            else if (dailyMode === 'meaning') correctAns = data.answer;
-            else if (dailyMode === 'masu') correctAns = data.masu;
-            else if (dailyMode === 'masen') correctAns = data.masen;
-            else if (dailyMode === 'te') correctAns = data.te;
+            if (dailyMode === 'reading' || dailyMode === 'meaning') correctAns = data.answer;
+            else if (dailyMode === 'masu' || dailyMode === 'meaning_masu') correctAns = data.masu;
+            else if (dailyMode === 'masen' || dailyMode === 'meaning_masen') correctAns = data.masen;
+            else if (dailyMode === 'te' || dailyMode === 'meaning_te') correctAns = data.te;
 
             const isCorrect = normalizeString(correctAns) === inputVal;
             const wasCorrect = resultEl.classList.contains('correct');
@@ -738,6 +767,7 @@
             let hintLabel = "";
             let hintText = "";
 
+            // 모드에 따라 정답 및 힌트 결정
             if (dailyMode === 'reading') {
                 correctAns = q.answer; hintLabel = "뜻"; hintText = q.korean;
             } else if (dailyMode === 'meaning') {
@@ -748,6 +778,12 @@
                 correctAns = q.masen; hintLabel = "기본형"; hintText = q.kanji;
             } else if (dailyMode === 'te') {
                 correctAns = q.te; hintLabel = "기본형"; hintText = q.kanji;
+            } else if (dailyMode === 'meaning_masu') {
+                correctAns = q.masu; hintLabel = "한자(기본형)"; hintText = q.kanji;
+            } else if (dailyMode === 'meaning_masen') {
+                correctAns = q.masen; hintLabel = "한자(기본형)"; hintText = q.kanji;
+            } else if (dailyMode === 'meaning_te') {
+                correctAns = q.te; hintLabel = "한자(기본형)"; hintText = q.kanji;
             }
 
             let html = `<strong>정답:</strong> ${correctAns}`;
