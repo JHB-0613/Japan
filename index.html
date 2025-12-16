@@ -64,12 +64,12 @@
             margin-bottom: 20px;
         }
         .mode-btn {
-            padding: 10px 20px;
+            padding: 10px 15px;
             font-size: 0.95em;
             border: 2px solid #3498db;
             background-color: white;
             color: #3498db;
-            border-radius: 25px;
+            border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: bold;
@@ -83,12 +83,12 @@
             background-color: #eaf6fd;
         }
         .shuffle-btn {
-            padding: 10px 20px;
+            padding: 10px 15px;
             font-size: 0.95em;
             border: 2px solid #e67e22;
             background-color: white;
             color: #e67e22;
-            border-radius: 25px;
+            border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
@@ -258,11 +258,12 @@
 
     <div id="view-daily" class="view-section">
         <div class="control-panel">
-            <button class="mode-btn active" id="btn-daily-reading" onclick="setDailyMode('reading')">모드 1: 한자 읽기</button>
-            <button class="mode-btn" id="btn-daily-meaning" onclick="setDailyMode('meaning')">모드 2: 뜻 보고 쓰기</button>
-            <button class="mode-btn" id="btn-daily-masu" onclick="setDailyMode('masu')">모드 3: ~ます형 바꾸기</button>
-            <button class="mode-btn" id="btn-daily-masen" onclick="setDailyMode('masen')">모드 4: ~ません형 바꾸기</button>
-            <button class="shuffle-btn" onclick="shuffleDaily()">🔄 순서 섞기</button>
+            <button class="mode-btn active" id="btn-daily-reading" onclick="setDailyMode('reading')">1. 한자 읽기</button>
+            <button class="mode-btn" id="btn-daily-meaning" onclick="setDailyMode('meaning')">2. 뜻 보고 쓰기</button>
+            <button class="mode-btn" id="btn-daily-masu" onclick="setDailyMode('masu')">3. ~ます형</button>
+            <button class="mode-btn" id="btn-daily-masen" onclick="setDailyMode('masen')">4. ~ません형</button>
+            <button class="mode-btn" id="btn-daily-te" onclick="setDailyMode('te')">5. ~て형(연결형)</button>
+            <button class="shuffle-btn" onclick="shuffleDaily()">🔄 섞기</button>
         </div>
         <div class="intro" id="daily-intro"></div>
         <div id="daily-quiz-area"></div>
@@ -350,40 +351,40 @@
             { id: 'd30', q: "6월 30일", a: "ろくがつ さんじゅうにち" }
         ];
 
-        // [데이터 3] 하루 일정 퀴즈 (확장됨: masu, masen 추가)
+        // [데이터 3] 하루 일정 퀴즈 (확장됨: masu, masen, te 추가)
         const dailyQuizData = [
-            { id: 1, korean: "아침에 일어나다", kanji: "朝、起きる", answer: "あさ、おきる", masu: "あさ、おきます", masen: "あさ、おきません" },
-            { id: 2, korean: "밥을 먹다", kanji: "ごはんを食べる", answer: "ごはんをたべる", masu: "ごはんをたべます", masen: "ごはんをたべません" },
-            { id: 3, korean: "이를 닦다", kanji: "歯を磨く", answer: "はをみがく", masu: "はをみがきます", masen: "はをみがきません" },
-            { id: 4, korean: "(옷을) 갈아입다", kanji: "着替える", answer: "きがえる", masu: "きがえます", masen: "きがえません" },
-            { id: 5, korean: "버스를 타다", kanji: "バスに乗る", answer: "バスにのる", masu: "バスにのります", masen: "バスにのりません" },
-            { id: 6, korean: "회사로 가다", kanji: "会社へ行く", answer: "かいしゃへいく", masu: "かいしゃへいきます", masen: "かいしゃへいきません" },
-            { id: 7, korean: "커피를 마시다", kanji: "コーヒーを飲む", answer: "コーヒーをのむ", masu: "コーヒーをのみます", masen: "コーヒーをのみません" },
-            { id: 8, korean: "역까지 걷다", kanji: "駅まで歩く", answer: "えきまであるく", masu: "えきまであるきます", masen: "えきまであるきません" },
-            { id: 9, korean: "지하철을 기다리다", kanji: "地下鉄を待つ", answer: "ちかてつをまつ", masu: "ちかてつをまちます", masen: "ちかてつをまちません" },
-            { id: 10, korean: "노래를 부르다", kanji: "歌を歌う", answer: "うたをうたう", masu: "うたをうたいます", masen: "うたをうたいません" },
-            { id: 11, korean: "친구를 만나다", kanji: "友だちに会う", answer: "ともだちにあう", masu: "ともだちにあいます", masen: "ともだちにあいません" },
-            { id: 12, korean: "강아지와 놀다", kanji: "子犬と遊ぶ", answer: "こいぬとあそぶ", masu: "こいぬとあそびます", masen: "こいぬとあそびません" },
-            { id: 13, korean: "영화를 보다", kanji: "映画を見る", answer: "えいがをみる", masu: "えいがをみます", masen: "えいがをみません" },
-            { id: 14, korean: "음악을 듣다", kanji: "音楽を聞く", answer: "おんがくをきく", masu: "おんがくをききます", masen: "おんがくをききません" },
-            { id: 15, korean: "선생님과 이야기하다", kanji: "先生と話す", answer: "せんせいとはなす", masu: "せんせいとはなします", masen: "せんせいとはなしません" },
-            { id: 16, korean: "친구가 집으로 오다", kanji: "友だちが家へ来る", answer: "ともだちがいえへくる", masu: "ともだちがいえへきます", masen: "ともだちがいえへきません" },
-            { id: 17, korean: "손을 씻다", kanji: "手を洗う", answer: "てをあらう", masu: "てをあらいます", masen: "てをあらいません" },
-            { id: 18, korean: "도서관에서 공부를 하다", kanji: "図書館で勉強をする", answer: "としょかんでべんきょうをする", masu: "としょかんでべんきょうをします", masen: "としょかんでべんきょうをしません" },
-            { id: 19, korean: "수영장에서 수영하다", kanji: "プールで泳ぐ", answer: "プールでおよぐ", masu: "プールでおよぎます", masen: "プールでおよぎません" },
-            { id: 20, korean: "사진을 찍다", kanji: "写真を撮る", answer: "しゃしんをとる", masu: "しゃしんをとります", masen: "しゃしんをとりません" },
-            { id: 21, korean: "책을 사다", kanji: "本を買う", answer: "ほんをかう", masu: "ほんをかいます", masen: "ほんをかいません" },
-            { id: 22, korean: "집으로 (돌아)가다", kanji: "家へ帰る", answer: "いえへかえる", masu: "いえへかえります", masen: "いえへかえりません" },
-            { id: 23, korean: "메일을 쓰다", kanji: "メールを書く", answer: "メールをかく", masu: "メールをかきます", masen: "メールをかきません" },
-            { id: 24, korean: "목욕하다 (욕조에 들어가다)", kanji: "お風呂に入る", answer: "おふろにはいる", masu: "おふろにはいります", masen: "おふろにはいりません" },
-            { id: 25, korean: "일본어를 배우다", kanji: "日本語を習う", answer: "にほんごをならう", masu: "にほんごをならいます", masen: "にほんごをならいません" },
-            { id: 26, korean: "담배를 피다", kanji: "たばこを吸う", answer: "たばこをすう", masu: "たばこをすいます", masen: "たばこをすいません" },
-            { id: 27, korean: "신문을 읽다", kanji: "新聞を読む", answer: "しんぶんをよむ", masu: "しんぶんをよみます", masen: "しんぶんをよみません" },
-            { id: 28, korean: "(잠)자다", kanji: "寝る", answer: "ねる", masu: "ねます", masen: "ねません" },
-            { id: 29, korean: "수업이 시작되다", kanji: "授業が始まる", answer: "じゅぎょうがはじまる", masu: "じゅぎょうがはじまります", masen: "じゅぎょうがはじまりません" },
-            { id: 30, korean: "일이(업무가) 끝나다", kanji: "仕事が終わる", answer: "しごとがおわる", masu: "しごとがおわります", masen: "しごとがおわりません" },
-            { id: 31, korean: "학생이 있다", kanji: "学生がいる", answer: "がくせいがいる", masu: "がくせいがいます", masen: "がくせがいません" },
-            { id: 32, korean: "가방이 있다", kanji: "かばんがある", answer: "かばんがある", masu: "かばんがあります", masen: "かばんがありません" }
+            { id: 1, korean: "아침에 일어나다", kanji: "朝、起きる", answer: "あさ、おきる", masu: "あさ、おきます", masen: "あさ、おきません", te: "あさ、おきて" },
+            { id: 2, korean: "밥을 먹다", kanji: "ごはんを食べる", answer: "ごはんをたべる", masu: "ごはんをたべます", masen: "ごはんをたべません", te: "ごはんをたべて" },
+            { id: 3, korean: "이를 닦다", kanji: "歯を磨く", answer: "はをみがく", masu: "はをみがきます", masen: "はをみがきません", te: "はをみがいて" },
+            { id: 4, korean: "(옷을) 갈아입다", kanji: "着替える", answer: "きがえる", masu: "きがえます", masen: "きがえません", te: "きがえて" },
+            { id: 5, korean: "버스를 타다", kanji: "バスに乗る", answer: "バスにのる", masu: "バスにのります", masen: "バスにのりません", te: "バスにのって" },
+            { id: 6, korean: "회사로 가다", kanji: "会社へ行く", answer: "かいしゃへいく", masu: "かいしゃへいきます", masen: "かいしゃへいきません", te: "かいしゃへいって" },
+            { id: 7, korean: "커피를 마시다", kanji: "コーヒーを飲む", answer: "コーヒーをのむ", masu: "コーヒーをのみます", masen: "コーヒーをのみません", te: "コーヒーをのんで" },
+            { id: 8, korean: "역까지 걷다", kanji: "駅まで歩く", answer: "えきまであるく", masu: "えきまであるきます", masen: "えきまであるきません", te: "えきまであるいて" },
+            { id: 9, korean: "지하철을 기다리다", kanji: "地下鉄を待つ", answer: "ちかてつをまつ", masu: "ちかてつをまちます", masen: "ちかてつをまちません", te: "ちかてつをまって" },
+            { id: 10, korean: "노래를 부르다", kanji: "歌を歌う", answer: "うたをうたう", masu: "うたをうたいます", masen: "うたをうたいません", te: "うたをうたって" },
+            { id: 11, korean: "친구를 만나다", kanji: "友だちに会う", answer: "ともだちにあう", masu: "ともだちにあいます", masen: "ともだちにあいません", te: "ともだちにあって" },
+            { id: 12, korean: "강아지와 놀다", kanji: "子犬と遊ぶ", answer: "こいぬとあそぶ", masu: "こいぬとあそびます", masen: "こいぬとあそびません", te: "こいぬとあそんで" },
+            { id: 13, korean: "영화를 보다", kanji: "映画を見る", answer: "えいがをみる", masu: "えいがをみます", masen: "えいがをみません", te: "えいがをみて" },
+            { id: 14, korean: "음악을 듣다", kanji: "音楽を聞く", answer: "おんがくをきく", masu: "おんがくをききます", masen: "おんがくをききません", te: "おんがくをきいて" },
+            { id: 15, korean: "선생님과 이야기하다", kanji: "先生と話す", answer: "せんせいとはなす", masu: "せんせいとはなします", masen: "せんせいとはなしません", te: "せんせいとはなして" },
+            { id: 16, korean: "친구가 집으로 오다", kanji: "友だちが家へ来る", answer: "ともだちがいえへくる", masu: "ともだちがいえへきます", masen: "ともだちがいえへきません", te: "ともだちがいえへきて" },
+            { id: 17, korean: "손을 씻다", kanji: "手を洗う", answer: "てをあらう", masu: "てをあらいます", masen: "てをあらいません", te: "てをあらって" },
+            { id: 18, korean: "도서관에서 공부를 하다", kanji: "図書館で勉強をする", answer: "としょかんでべんきょうをする", masu: "としょかんでべんきょうをします", masen: "としょかんでべんきょうをしません", te: "としょかんでべんきょうをして" },
+            { id: 19, korean: "수영장에서 수영하다", kanji: "プールで泳ぐ", answer: "プールでおよぐ", masu: "プールでおよぎます", masen: "プールでおよぎません", te: "プールでおよいで" },
+            { id: 20, korean: "사진을 찍다", kanji: "写真を撮る", answer: "しゃしんをとる", masu: "しゃしんをとります", masen: "しゃしんをとりません", te: "しゃしんをとって" },
+            { id: 21, korean: "책을 사다", kanji: "本を買う", answer: "ほんをかう", masu: "ほんをかいます", masen: "ほんをかいません", te: "ほんをかって" },
+            { id: 22, korean: "집으로 (돌아)가다", kanji: "家へ帰る", answer: "いえへかえる", masu: "いえへかえります", masen: "いえへかえりません", te: "いえへかえって" },
+            { id: 23, korean: "메일을 쓰다", kanji: "メールを書く", answer: "メールをかく", masu: "メールをかきます", masen: "メールをかきません", te: "メールをかいて" },
+            { id: 24, korean: "목욕하다 (욕조에 들어가다)", kanji: "お風呂に入る", answer: "おふろにはいる", masu: "おふろにはいります", masen: "おふろにはいりません", te: "おふろにはいって" },
+            { id: 25, korean: "일본어를 배우다", kanji: "日本語を習う", answer: "にほんごをならう", masu: "にほんごをならいます", masen: "にほんごをならいません", te: "にほんごをならって" },
+            { id: 26, korean: "담배를 피다", kanji: "たばこを吸う", answer: "たばこをすう", masu: "たばこをすいます", masen: "たばこをすいません", te: "たばこをすって" },
+            { id: 27, korean: "신문을 읽다", kanji: "新聞を読む", answer: "しんぶんをよむ", masu: "しんぶんをよみます", masen: "しんぶんをよみません", te: "しんぶんをよんで" },
+            { id: 28, korean: "(잠)자다", kanji: "寝る", answer: "ねる", masu: "ねます", masen: "ねません", te: "ねて" },
+            { id: 29, korean: "수업이 시작되다", kanji: "授業が始まる", answer: "じゅぎょうがはじまる", masu: "じゅぎょうがはじまります", masen: "じゅぎょうがはじまりません", te: "じゅぎょうがはじまって" },
+            { id: 30, korean: "일이(업무가) 끝나다", kanji: "仕事が終わる", answer: "しごとがおわる", masu: "しごとがおわります", masen: "しごとがおわりません", te: "しごとがおわって" },
+            { id: 31, korean: "학생이 있다", kanji: "学生がいる", answer: "がくせいがいる", masu: "がくせいがいます", masen: "がくせがいません", te: "がくせいがいて" },
+            { id: 32, korean: "가방이 있다", kanji: "かばんがある", answer: "かばんがある", masu: "かばんがあります", masen: "かばんがありません", te: "かばんがあって" }
         ];
 
         // ==========================================
@@ -638,6 +639,9 @@
             } else if (mode === 'masen') {
                 document.getElementById('btn-daily-masen').classList.add('active');
                 introText = `<h3>🔧 ~ません형 바꾸기</h3><ul><li>제시된 기본형 문장을 <strong>부정형(~ません)</strong>으로 바꿔 쓰세요.<br>예: 起きる → おきません</li></ul>`;
+            } else if (mode === 'te') {
+                document.getElementById('btn-daily-te').classList.add('active');
+                introText = `<h3>🔗 ~て형(연결형) 바꾸기</h3><ul><li>제시된 기본형 문장을 <strong>연결형(~て/で)</strong>으로 바꿔 쓰세요.<br>예: 買う → かって, 読む → よんで</li></ul>`;
             }
             
             document.getElementById('daily-intro').innerHTML = introText;
@@ -657,23 +661,23 @@
             container.innerHTML = '';
             currentDailyList.forEach((q, index) => {
                 const div = document.createElement('div');
-                div.className = `quiz-container ${dailyMode === 'reading' || dailyMode === 'masu' || dailyMode === 'masen' ? 'mode-kanji' : ''}`;
+                div.className = `quiz-container ${['reading', 'masu', 'masen', 'te'].includes(dailyMode) ? 'mode-kanji' : ''}`;
                 
                 // 모드에 따라 문제 텍스트 결정
                 let qText = "";
-                let place = "";
-                
-                if (dailyMode === 'reading' || dailyMode === 'masu' || dailyMode === 'masen') {
-                    qText = q.kanji; // 기본 한자 문장 보여줌
+                if (['reading', 'masu', 'masen', 'te'].includes(dailyMode)) {
+                    qText = q.kanji; // 기본 한자 문장
                 } else {
-                    qText = q.korean; // 뜻 보여줌
+                    qText = q.korean; // 뜻
                 }
 
                 // 모드에 따라 플레이스홀더 결정
+                let place = "";
                 if (dailyMode === 'reading') place = "히라가나로 읽는 법을 쓰세요";
                 else if (dailyMode === 'meaning') place = "일본어로 작문하세요";
                 else if (dailyMode === 'masu') place = "~ます형으로 바꾸세요 (히라가나)";
                 else if (dailyMode === 'masen') place = "~ません형으로 바꾸세요 (히라가나)";
+                else if (dailyMode === 'te') place = "~て형으로 바꾸세요 (히라가나)";
 
                 div.innerHTML = `
                     <span class="question-label">문제 ${index + 1}</span>
@@ -702,6 +706,7 @@
             else if (dailyMode === 'meaning') correctAns = data.answer;
             else if (dailyMode === 'masu') correctAns = data.masu;
             else if (dailyMode === 'masen') correctAns = data.masen;
+            else if (dailyMode === 'te') correctAns = data.te;
 
             const isCorrect = normalizeString(correctAns) === inputVal;
             const wasCorrect = resultEl.classList.contains('correct');
@@ -734,21 +739,15 @@
             let hintText = "";
 
             if (dailyMode === 'reading') {
-                correctAns = q.answer;
-                hintLabel = "뜻";
-                hintText = q.korean;
+                correctAns = q.answer; hintLabel = "뜻"; hintText = q.korean;
             } else if (dailyMode === 'meaning') {
-                correctAns = q.answer;
-                hintLabel = "한자";
-                hintText = q.kanji;
+                correctAns = q.answer; hintLabel = "한자"; hintText = q.kanji;
             } else if (dailyMode === 'masu') {
-                correctAns = q.masu;
-                hintLabel = "기본형";
-                hintText = q.kanji;
+                correctAns = q.masu; hintLabel = "기본형"; hintText = q.kanji;
             } else if (dailyMode === 'masen') {
-                correctAns = q.masen;
-                hintLabel = "기본형";
-                hintText = q.kanji;
+                correctAns = q.masen; hintLabel = "기본형"; hintText = q.kanji;
+            } else if (dailyMode === 'te') {
+                correctAns = q.te; hintLabel = "기본형"; hintText = q.kanji;
             }
 
             let html = `<strong>정답:</strong> ${correctAns}`;
@@ -761,4 +760,3 @@
     </script>
 </body>
 </html>
-
