@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>일본어 통합 트레이닝 (문장 + 시간/날짜)</title>
+    <title>일본어 마스터 (문장 + 시간/날짜 + 하루일정)</title>
     <style>
         body {
             font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
@@ -23,25 +23,27 @@
         .main-nav {
             display: flex;
             justify-content: center;
+            flex-wrap: wrap;
             margin-bottom: 30px;
             background-color: #fff;
             padding: 10px;
-            border-radius: 50px;
+            border-radius: 20px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             gap: 10px;
         }
         .main-tab-btn {
-            padding: 15px 30px;
-            font-size: 1.2em;
+            padding: 12px 20px;
+            font-size: 1.1em;
             border: none;
             background-color: transparent;
             color: #7f8c8d;
-            border-radius: 40px;
+            border-radius: 15px;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: bold;
             flex: 1;
-            max-width: 300px;
+            min-width: 140px;
+            text-align: center;
         }
         .main-tab-btn.active {
             background-color: #2c3e50;
@@ -53,7 +55,7 @@
             color: #2c3e50;
         }
 
-        /* 서브 컨트롤 패널 (모드 선택 + 셔플) */
+        /* 서브 컨트롤 패널 */
         .control-panel {
             display: flex;
             justify-content: center;
@@ -63,7 +65,7 @@
         }
         .mode-btn {
             padding: 10px 20px;
-            font-size: 1em;
+            font-size: 0.95em;
             border: 2px solid #3498db;
             background-color: white;
             color: #3498db;
@@ -82,7 +84,7 @@
         }
         .shuffle-btn {
             padding: 10px 20px;
-            font-size: 1em;
+            font-size: 0.95em;
             border: 2px solid #e67e22;
             background-color: white;
             color: #e67e22;
@@ -96,7 +98,7 @@
             box-shadow: 0 4px 6px rgba(230, 126, 34, 0.3);
         }
 
-        /* 안내 박스 */
+        /* 공통 스타일 */
         .intro {
             background-color: #fff;
             padding: 20px;
@@ -109,7 +111,6 @@
         .intro ul { margin: 0; padding-left: 20px; }
         .intro li { margin-bottom: 5px; color: #555; }
 
-        /* 퀴즈 박스 */
         .quiz-container {
             background-color: #fff;
             padding: 25px;
@@ -134,7 +135,6 @@
             line-height: 1.4;
             color: #2c3e50;
         }
-        /* 한자 모드일 때 폰트 조금 더 키움 */
         .mode-kanji .question-text {
             font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
             font-size: 1.5em;
@@ -213,12 +213,11 @@
             z-index: 100;
         }
 
-        /* 뷰 전환용 유틸리티 */
         .view-section {
-            display: none; /* 기본적으로 숨김 */
+            display: none;
         }
         .view-section.active {
-            display: block; /* 활성화된 섹션만 보임 */
+            display: block;
             animation: fadeIn 0.5s;
         }
         @keyframes fadeIn {
@@ -232,8 +231,9 @@
     <h1>🇯🇵 일본어 통합 트레이닝</h1>
 
     <div class="main-nav">
-        <button class="main-tab-btn active" onclick="switchMainTab('sentence')">📝 문장 작문/읽기</button>
+        <button class="main-tab-btn active" onclick="switchMainTab('sentence')">📝 문장 작문/읽기<br><small>(좋아하다/싫어하다)</small></button>
         <button class="main-tab-btn" onclick="switchMainTab('timeDate')">⏰ 시간/날짜 표현</button>
+        <button class="main-tab-btn" onclick="switchMainTab('daily')">🗓️ 하루 일정<br><small>(동사 활용)</small></button>
     </div>
 
     <div id="view-sentence" class="view-section active">
@@ -242,12 +242,8 @@
             <button class="mode-btn" id="btn-mode-reading" onclick="setSentenceMode('reading')">모드 2: 한자 읽기</button>
             <button class="shuffle-btn" onclick="shuffleSentence()">🔄 순서 섞기</button>
         </div>
-
-        <div class="intro" id="sentence-intro">
-            </div>
-
-        <div id="sentence-quiz-area">
-            </div>
+        <div class="intro" id="sentence-intro"></div>
+        <div id="sentence-quiz-area"></div>
     </div>
 
     <div id="view-timeDate" class="view-section">
@@ -256,12 +252,20 @@
             <button class="mode-btn" id="btn-mode-date" onclick="setTimeDateMode('date')">📅 날짜 (Date)</button>
             <button class="shuffle-btn" onclick="shuffleTimeDate()">🔄 순서 섞기</button>
         </div>
+        <div class="intro" id="timedate-intro"></div>
+        <div id="timedate-quiz-area"></div>
+    </div>
 
-        <div class="intro" id="timedate-intro">
-            </div>
-
-        <div id="timedate-quiz-area">
-            </div>
+    <div id="view-daily" class="view-section">
+        <div class="control-panel">
+            <button class="mode-btn active" id="btn-daily-reading" onclick="setDailyMode('reading')">모드 1: 한자 읽기</button>
+            <button class="mode-btn" id="btn-daily-meaning" onclick="setDailyMode('meaning')">모드 2: 뜻 보고 쓰기</button>
+            <button class="mode-btn" id="btn-daily-masu" onclick="setDailyMode('masu')">모드 3: ~ます형 바꾸기</button>
+            <button class="mode-btn" id="btn-daily-masen" onclick="setDailyMode('masen')">모드 4: ~ません형 바꾸기</button>
+            <button class="shuffle-btn" onclick="shuffleDaily()">🔄 순서 섞기</button>
+        </div>
+        <div class="intro" id="daily-intro"></div>
+        <div id="daily-quiz-area"></div>
     </div>
 
     <div class="score-board">
@@ -273,7 +277,6 @@
         // 1. 데이터 정의
         // ==========================================
 
-        // 문장 퀴즈 데이터
         const originalSentenceData = [
             { id: 1, korean: "좋아하는 과일은 무엇입니까?", kanji: "好きな果物は何ですか。", answer: "すきな くだものは なんですか" },
             { id: 2, korean: "저는 사과를 좋아합니다.", kanji: "私はりんごが好きです。", answer: "わたしは りんごが すきです" },
@@ -298,7 +301,6 @@
             { id: 21, korean: "나는 요리를 못 하는 남자를 싫어한다. (반말)", kanji: "私は料理が下手な男が嫌いだ。", answer: "わたしは りょうりが へたな おとこが きらいだ" }
         ];
 
-        // 시간 퀴즈 데이터 (수정됨: 7분, 8분 중복 정답 추가)
         const timeQuizData = [
             { id: 't1', q: "1시 1분", a: "いちじ いっぷん" },
             { id: 't2', q: "2시 2분", a: "にじ にふん" },
@@ -306,18 +308,8 @@
             { id: 't4', q: "4시 4분", a: "よじ よんぷん" },
             { id: 't5', q: "5시 5분", a: "ごじ ごふん" },
             { id: 't6', q: "6시 6분", a: "ろくじ ろっぷん" },
-            { 
-                id: 't7', 
-                q: "7시 7분", 
-                a: "しちじ ななふん",
-                accepted: ["しちじ ななふん", "しちじ しちふん"] // 7분: ななふん, しちふん 모두 허용
-            },
-            { 
-                id: 't8', 
-                q: "8시 8분", 
-                a: "はちじ はっぷん",
-                accepted: ["はちじ はっぷん", "はちじ はちふん"] // 8분: はっぷん, はちふん 모두 허용
-            },
+            { id: 't7', q: "7시 7분", a: "しちじ ななふん", accepted: ["しちじ ななふん", "しちじ しちふん"] },
+            { id: 't8', q: "8시 8분", a: "はちじ はっぷん", accepted: ["はちじ はっぷん", "はちじ はちふん"] },
             { id: 't9', q: "9시 9분", a: "くじ きゅうふん" },
             { id: 't10', q: "10시 10분", a: "じゅうじ じゅっぷん" },
             { id: 't11', q: "11시 15분", a: "じゅういちじ じゅうごふん" },
@@ -334,7 +326,6 @@
             { id: 't22', q: "10시 40분", a: "じゅうじ よんじゅっぷん" }
         ];
 
-        // 날짜 퀴즈 데이터
         const dateQuizData = [
             { id: 'd1', q: "1월 1일", a: "いちがつ ついたち" },
             { id: 'd2', q: "2월 2일", a: "にがつ ふつか" },
@@ -359,281 +350,67 @@
             { id: 'd30', q: "6월 30일", a: "ろくがつ さんじゅうにち" }
         ];
 
+        // [데이터 3] 하루 일정 퀴즈 (확장됨: masu, masen 추가)
+        const dailyQuizData = [
+            { id: 1, korean: "아침에 일어나다", kanji: "朝、起きる", answer: "あさ、おきる", masu: "あさ、おきます", masen: "あさ、おきません" },
+            { id: 2, korean: "밥을 먹다", kanji: "ごはんを食べる", answer: "ごはんをたべる", masu: "ごはんをたべます", masen: "ごはんをたべません" },
+            { id: 3, korean: "이를 닦다", kanji: "歯を磨く", answer: "はをみがく", masu: "はをみがきます", masen: "はをみがきません" },
+            { id: 4, korean: "(옷을) 갈아입다", kanji: "着替える", answer: "きがえる", masu: "きがえます", masen: "きがえません" },
+            { id: 5, korean: "버스를 타다", kanji: "バスに乗る", answer: "バスにのる", masu: "バスにのります", masen: "バスにのりません" },
+            { id: 6, korean: "회사로 가다", kanji: "会社へ行く", answer: "かいしゃへいく", masu: "かいしゃへいきます", masen: "かいしゃへいきません" },
+            { id: 7, korean: "커피를 마시다", kanji: "コーヒーを飲む", answer: "コーヒーをのむ", masu: "コーヒーをのみます", masen: "コーヒーをのみません" },
+            { id: 8, korean: "역까지 걷다", kanji: "駅まで歩く", answer: "えきまであるく", masu: "えきまであるきます", masen: "えきまであるきません" },
+            { id: 9, korean: "지하철을 기다리다", kanji: "地下鉄を待つ", answer: "ちかてつをまつ", masu: "ちかてつをまちます", masen: "ちかてつをまちません" },
+            { id: 10, korean: "노래를 부르다", kanji: "歌を歌う", answer: "うたをうたう", masu: "うたをうたいます", masen: "うたをうたいません" },
+            { id: 11, korean: "친구를 만나다", kanji: "友だちに会う", answer: "ともだちにあう", masu: "ともだちにあいます", masen: "ともだちにあいません" },
+            { id: 12, korean: "강아지와 놀다", kanji: "子犬と遊ぶ", answer: "こいぬとあそぶ", masu: "こいぬとあそびます", masen: "こいぬとあそびません" },
+            { id: 13, korean: "영화를 보다", kanji: "映画を見る", answer: "えいがをみる", masu: "えいがをみます", masen: "えいがをみません" },
+            { id: 14, korean: "음악을 듣다", kanji: "音楽を聞く", answer: "おんがくをきく", masu: "おんがくをききます", masen: "おんがくをききません" },
+            { id: 15, korean: "선생님과 이야기하다", kanji: "先生と話す", answer: "せんせいとはなす", masu: "せんせいとはなします", masen: "せんせいとはなしません" },
+            { id: 16, korean: "친구가 집으로 오다", kanji: "友だちが家へ来る", answer: "ともだちがいえへくる", masu: "ともだちがいえへきます", masen: "ともだちがいえへきません" },
+            { id: 17, korean: "손을 씻다", kanji: "手を洗う", answer: "てをあらう", masu: "てをあらいます", masen: "てをあらいません" },
+            { id: 18, korean: "도서관에서 공부를 하다", kanji: "図書館で勉強をする", answer: "としょかんでべんきょうをする", masu: "としょかんでべんきょうをします", masen: "としょかんでべんきょうをしません" },
+            { id: 19, korean: "수영장에서 수영하다", kanji: "プールで泳ぐ", answer: "プールでおよぐ", masu: "プールでおよぎます", masen: "プールでおよぎません" },
+            { id: 20, korean: "사진을 찍다", kanji: "写真を撮る", answer: "しゃしんをとる", masu: "しゃしんをとります", masen: "しゃしんをとりません" },
+            { id: 21, korean: "책을 사다", kanji: "本を買う", answer: "ほんをかう", masu: "ほんをかいます", masen: "ほんをかいません" },
+            { id: 22, korean: "집으로 (돌아)가다", kanji: "家へ帰る", answer: "いえへかえる", masu: "いえへかえります", masen: "いえへかえりません" },
+            { id: 23, korean: "메일을 쓰다", kanji: "メールを書く", answer: "メールをかく", masu: "メールをかきます", masen: "メールをかきません" },
+            { id: 24, korean: "목욕하다 (욕조에 들어가다)", kanji: "お風呂に入る", answer: "おふろにはいる", masu: "おふろにはいります", masen: "おふろにはいりません" },
+            { id: 25, korean: "일본어를 배우다", kanji: "日本語を習う", answer: "にほんごをならう", masu: "にほんごをならいます", masen: "にほんごをならいません" },
+            { id: 26, korean: "담배를 피다", kanji: "たばこを吸う", answer: "たばこをすう", masu: "たばこをすいます", masen: "たばこをすいません" },
+            { id: 27, korean: "신문을 읽다", kanji: "新聞を読む", answer: "しんぶんをよむ", masu: "しんぶんをよみます", masen: "しんぶんをよみません" },
+            { id: 28, korean: "(잠)자다", kanji: "寝る", answer: "ねる", masu: "ねます", masen: "ねません" },
+            { id: 29, korean: "수업이 시작되다", kanji: "授業が始まる", answer: "じゅぎょうがはじまる", masu: "じゅぎょうがはじまります", masen: "じゅぎょうがはじまりません" },
+            { id: 30, korean: "일이(업무가) 끝나다", kanji: "仕事が終わる", answer: "しごとがおわる", masu: "しごとがおわります", masen: "しごとがおわりません" },
+            { id: 31, korean: "학생이 있다", kanji: "学生がいる", answer: "がくせいがいる", masu: "がくせいがいます", masen: "がくせがいません" },
+            { id: 32, korean: "가방이 있다", kanji: "かばんがある", answer: "かばんがある", masu: "かばんがあります", masen: "かばんがありません" }
+        ];
+
         // ==========================================
         // 2. 상태 변수 및 초기화
         // ==========================================
         
-        // 현재 활성화된 메인 탭 ('sentence' or 'timeDate')
         let currentMainTab = 'sentence';
-
-        // 문장 퀴즈 상태
-        let sentenceMode = 'meaning'; // 'meaning', 'reading'
-        let currentSentenceList = [];
-        
-        // 시간/날짜 퀴즈 상태
-        let timeDateMode = 'time'; // 'time', 'date'
-        let currentTimeDateList = [];
-
-        // 공통 점수
         let score = 0;
 
+        // 각 모드별 상태
+        let sentenceMode = 'meaning';
+        let currentSentenceList = [];
+        
+        let timeDateMode = 'time';
+        let currentTimeDateList = [];
+
+        let dailyMode = 'reading'; 
+        let currentDailyList = [];
+
         document.addEventListener('DOMContentLoaded', function() {
-            // 초기 로딩 시 문장 퀴즈 활성화
             switchMainTab('sentence');
         });
 
-        // ==========================================
-        // 3. 메인 탭 전환 로직
-        // ==========================================
-        function switchMainTab(tabName) {
-            currentMainTab = tabName;
-            
-            // 탭 버튼 스타일 업데이트
-            const tabs = document.querySelectorAll('.main-tab-btn');
-            tabs.forEach(btn => btn.classList.remove('active'));
-            if (tabName === 'sentence') tabs[0].classList.add('active');
-            else tabs[1].classList.add('active');
-
-            // 뷰 섹션 전환
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            
-            if (tabName === 'sentence') {
-                document.getElementById('view-sentence').classList.add('active');
-                setSentenceMode(sentenceMode); // 기존 설정된 모드로 리셋/렌더링
-            } else {
-                document.getElementById('view-timeDate').classList.add('active');
-                setTimeDateMode(timeDateMode); // 기존 설정된 모드로 리셋/렌더링
-            }
+        function updateScore() {
+            document.getElementById('score').textContent = score;
         }
 
-        // ==========================================
-        // 4. 문장 퀴즈 로직
-        // ==========================================
-        function setSentenceMode(mode) {
-            sentenceMode = mode;
-            
-            // 버튼 스타일
-            document.getElementById('btn-mode-meaning').className = mode === 'meaning' ? 'mode-btn active' : 'mode-btn';
-            document.getElementById('btn-mode-reading').className = mode === 'reading' ? 'mode-btn active' : 'mode-btn';
-
-            // 설명
-            const introDiv = document.getElementById('sentence-intro');
-            if (mode === 'meaning') {
-                introDiv.innerHTML = `<h3>📝 모드 1: 뜻 보고 쓰기</h3><ul><li>한국어 뜻을 보고 일본어 문장을 입력하세요.</li><li>한자는 히라가나로 적어주세요.</li></ul>`;
-            } else {
-                introDiv.innerHTML = `<h3>📖 모드 2: 한자 읽기 연습</h3><ul><li>일본어(한자) 문장을 보고 히라가나 읽는 법을 입력하세요.</li></ul>`;
-            }
-
-            shuffleSentence();
-        }
-
-        function shuffleSentence() {
-            // 원본 복사 후 셔플
-            currentSentenceList = JSON.parse(JSON.stringify(originalSentenceData));
-            shuffleArray(currentSentenceList);
-            
-            score = 0;
-            document.getElementById('score').textContent = 0;
-            document.getElementById('total-count').textContent = currentSentenceList.length;
-            
-            renderSentenceQuiz();
-        }
-
-        function renderSentenceQuiz() {
-            const container = document.getElementById('sentence-quiz-area');
-            container.innerHTML = '';
-
-            currentSentenceList.forEach((q, index) => {
-                const div = document.createElement('div');
-                div.className = `quiz-container ${sentenceMode === 'reading' ? 'mode-kanji' : ''}`;
-                
-                const questionText = sentenceMode === 'meaning' ? q.korean : q.kanji;
-                const placeholder = sentenceMode === 'meaning' ? "일본어로 작문하세요" : "히라가나로 읽는 법을 쓰세요";
-
-                div.innerHTML = `
-                    <span class="question-label">문제 ${index + 1}</span>
-                    <div class="question-text">${questionText}</div>
-                    <div class="input-group">
-                        <input type="text" id="s-input-${index}" placeholder="${placeholder}" autocomplete="off">
-                        <button class="action-btn" id="s-btn-${index}">확인</button>
-                        <button class="action-btn show-answer-btn" id="s-show-${index}">정답 보기</button>
-                    </div>
-                    <div id="s-result-${index}" class="result"></div>
-                    <div id="s-display-${index}" class="answer-display"></div>
-                `;
-                container.appendChild(div);
-
-                // 이벤트
-                document.getElementById(`s-btn-${index}`).onclick = () => checkSentenceAnswer(index);
-                document.getElementById(`s-show-${index}`).onclick = () => showSentenceAnswer(index);
-                document.getElementById(`s-input-${index}`).onkeypress = (e) => { if(e.key === 'Enter') checkSentenceAnswer(index); };
-            });
-        }
-
-        function checkSentenceAnswer(index) {
-            const inputVal = normalizeString(document.getElementById(`s-input-${index}`).value);
-            const data = currentSentenceList[index];
-            const resultEl = document.getElementById(`s-result-${index}`);
-
-            let valid = [data.answer];
-            if (data.accepted) valid = data.accepted;
-
-            const isCorrect = valid.some(ans => normalizeString(ans) === inputVal);
-            const wasCorrect = resultEl.classList.contains('correct');
-
-            showSentenceAnswerText(index, true);
-
-            if (isCorrect) {
-                resultEl.innerHTML = "정답입니다! ⭕";
-                resultEl.className = "result correct";
-                resultEl.style.display = "block";
-                if (!wasCorrect) { score++; updateScore(); }
-            } else {
-                resultEl.innerHTML = "오답입니다. ❌";
-                resultEl.className = "result incorrect";
-                resultEl.style.display = "block";
-            }
-        }
-
-        function showSentenceAnswer(index) {
-            const resultEl = document.getElementById(`s-result-${index}`);
-            showSentenceAnswerText(index, false);
-            if (!resultEl.classList.contains('correct')) {
-                resultEl.innerHTML = "정답을 확인했습니다.";
-                resultEl.className = "result incorrect";
-                resultEl.style.display = "block";
-                resultEl.style.backgroundColor = "#e2e3e5";
-                resultEl.style.color = "#383d41";
-            }
-        }
-
-        function showSentenceAnswerText(index, isAttempted) {
-            const displayEl = document.getElementById(`s-display-${index}`);
-            const q = currentSentenceList[index];
-            
-            let html = `<strong>정답:</strong> ${q.answer}`;
-            if (q.accepted) html += `<br><span style="font-size:0.9em; color:#666;">(또는: ${q.accepted[1]})</span>`;
-            
-            if (sentenceMode === 'meaning') html += `<div style="margin-top:5px; font-size:0.9em; color:#555;">💡 참고(한자): ${q.kanji}</div>`;
-            else html += `<div style="margin-top:5px; font-size:0.9em; color:#555;">💡 참고(뜻): ${q.korean}</div>`;
-
-            displayEl.innerHTML = html;
-            displayEl.style.display = 'block';
-            displayEl.style.borderLeftColor = (isAttempted && document.getElementById(`s-result-${index}`).classList.contains('correct')) ? '#2ecc71' : '#95a5a6';
-        }
-
-        // ==========================================
-        // 5. 시간/날짜 퀴즈 로직
-        // ==========================================
-        function setTimeDateMode(mode) {
-            timeDateMode = mode;
-            
-            document.getElementById('btn-mode-time').className = mode === 'time' ? 'mode-btn active' : 'mode-btn';
-            document.getElementById('btn-mode-date').className = mode === 'date' ? 'mode-btn active' : 'mode-btn';
-
-            const introDiv = document.getElementById('timedate-intro');
-            if (mode === 'time') {
-                introDiv.innerHTML = `<h3>⏰ 시간 읽기 포인트</h3><ul><li>4, 7, 9시 발음 주의!</li><li>30분은 'はん(반)'도 정답 인정.</li><li>7분, 8분은 ( ) 안의 표현도 정답 인정.</li></ul>`;
-            } else {
-                introDiv.innerHTML = `<h3>📅 날짜 읽기 포인트</h3><ul><li>1~10일, 14일, 20일 특수 읽기 주의!</li><li>4, 7, 9월 발음 주의.</li></ul>`;
-            }
-
-            shuffleTimeDate();
-        }
-
-        function shuffleTimeDate() {
-            const sourceData = timeDateMode === 'time' ? timeQuizData : dateQuizData;
-            currentTimeDateList = JSON.parse(JSON.stringify(sourceData));
-            shuffleArray(currentTimeDateList);
-
-            score = 0;
-            document.getElementById('score').textContent = 0;
-            document.getElementById('total-count').textContent = currentTimeDateList.length;
-
-            renderTimeDateQuiz();
-        }
-
-        function renderTimeDateQuiz() {
-            const container = document.getElementById('timedate-quiz-area');
-            container.innerHTML = '';
-
-            currentTimeDateList.forEach((q, index) => {
-                const div = document.createElement('div');
-                div.className = 'quiz-container';
-                div.innerHTML = `
-                    <span class="question-label">문제 ${index + 1}</span>
-                    <div class="question-text">${q.q}</div>
-                    <div class="input-group">
-                        <input type="text" id="td-input-${index}" placeholder="히라가나로 입력하세요" autocomplete="off">
-                        <button class="action-btn" id="td-btn-${index}">확인</button>
-                        <button class="action-btn show-answer-btn" id="td-show-${index}">정답 보기</button>
-                    </div>
-                    <div id="td-result-${index}" class="result"></div>
-                    <div id="td-display-${index}" class="answer-display"></div>
-                `;
-                container.appendChild(div);
-
-                document.getElementById(`td-btn-${index}`).onclick = () => checkTimeDateAnswer(index);
-                document.getElementById(`td-show-${index}`).onclick = () => showTimeDateAnswer(index);
-                document.getElementById(`td-input-${index}`).onkeypress = (e) => { if(e.key === 'Enter') checkTimeDateAnswer(index); };
-            });
-        }
-
-        function checkTimeDateAnswer(index) {
-            const inputVal = normalizeString(document.getElementById(`td-input-${index}`).value);
-            const data = currentTimeDateList[index];
-            const resultEl = document.getElementById(`td-result-${index}`);
-
-            let valid = [data.a];
-            if (data.accepted) valid = data.accepted;
-
-            const isCorrect = valid.some(ans => normalizeString(ans) === inputVal);
-            const wasCorrect = resultEl.classList.contains('correct');
-
-            showTimeDateAnswerText(index, true);
-
-            if (isCorrect) {
-                resultEl.innerHTML = "정답입니다! ⭕";
-                resultEl.className = "result correct";
-                resultEl.style.display = "block";
-                if (!wasCorrect) { score++; updateScore(); }
-            } else {
-                resultEl.innerHTML = "오답입니다. ❌";
-                resultEl.className = "result incorrect";
-                resultEl.style.display = "block";
-            }
-        }
-
-        function showTimeDateAnswer(index) {
-            const resultEl = document.getElementById(`td-result-${index}`);
-            showTimeDateAnswerText(index, false);
-            if (!resultEl.classList.contains('correct')) {
-                resultEl.innerHTML = "정답을 확인했습니다.";
-                resultEl.className = "result incorrect";
-                resultEl.style.display = "block";
-                resultEl.style.backgroundColor = "#e2e3e5";
-                resultEl.style.color = "#383d41";
-            }
-        }
-
-        function showTimeDateAnswerText(index, isAttempted) {
-            const displayEl = document.getElementById(`td-display-${index}`);
-            const q = currentTimeDateList[index];
-            
-            let html = `<strong>정답:</strong> ${q.a}`;
-            if (q.accepted && q.accepted.length > 1) {
-                const alts = q.accepted.filter(x => x !== q.a);
-                if(alts.length) html += `<br><span style="font-size:0.9em; color:#666;">(또는: ${alts.join(', ')})</span>`;
-            }
-            
-            displayEl.innerHTML = html;
-            displayEl.style.display = 'block';
-            displayEl.style.borderLeftColor = (isAttempted && document.getElementById(`td-result-${index}`).classList.contains('correct')) ? '#2ecc71' : '#95a5a6';
-        }
-
-        // ==========================================
-        // 6. 유틸리티 함수
-        // ==========================================
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -645,10 +422,343 @@
             return str.replace(/[\s\u3000\u00A0\?\.\,\!。、？]/g, '');
         }
 
-        function updateScore() {
-            document.getElementById('score').textContent = score;
+        // ==========================================
+        // 3. 메인 탭 전환 로직
+        // ==========================================
+        function switchMainTab(tabName) {
+            currentMainTab = tabName;
+            
+            // 탭 스타일
+            const tabs = document.querySelectorAll('.main-tab-btn');
+            tabs.forEach(btn => btn.classList.remove('active'));
+            
+            const sections = document.querySelectorAll('.view-section');
+            sections.forEach(el => el.classList.remove('active'));
+
+            if (tabName === 'sentence') {
+                tabs[0].classList.add('active');
+                document.getElementById('view-sentence').classList.add('active');
+                setSentenceMode(sentenceMode);
+            } else if (tabName === 'timeDate') {
+                tabs[1].classList.add('active');
+                document.getElementById('view-timeDate').classList.add('active');
+                setTimeDateMode(timeDateMode);
+            } else if (tabName === 'daily') {
+                tabs[2].classList.add('active');
+                document.getElementById('view-daily').classList.add('active');
+                setDailyMode(dailyMode);
+            }
+        }
+
+        // ==========================================
+        // 4. 문장 퀴즈 (Sentence)
+        // ==========================================
+        function setSentenceMode(mode) {
+            sentenceMode = mode;
+            document.getElementById('btn-mode-meaning').className = mode === 'meaning' ? 'mode-btn active' : 'mode-btn';
+            document.getElementById('btn-mode-reading').className = mode === 'reading' ? 'mode-btn active' : 'mode-btn';
+            
+            const intro = document.getElementById('sentence-intro');
+            if(mode === 'meaning') intro.innerHTML = `<h3>📝 뜻 보고 쓰기</h3><ul><li>한국어 뜻을 보고 일본어 문장을 입력하세요.</li></ul>`;
+            else intro.innerHTML = `<h3>📖 한자 읽기</h3><ul><li>일본어(한자) 문장을 보고 히라가나로 입력하세요.</li></ul>`;
+            
+            shuffleSentence();
+        }
+
+        function shuffleSentence() {
+            currentSentenceList = JSON.parse(JSON.stringify(originalSentenceData));
+            shuffleArray(currentSentenceList);
+            score = 0; updateScore();
+            document.getElementById('total-count').textContent = currentSentenceList.length;
+            renderSentenceQuiz();
+        }
+
+        function renderSentenceQuiz() {
+            const container = document.getElementById('sentence-quiz-area');
+            container.innerHTML = '';
+            currentSentenceList.forEach((q, index) => {
+                const div = document.createElement('div');
+                div.className = `quiz-container ${sentenceMode === 'reading' ? 'mode-kanji' : ''}`;
+                const qText = sentenceMode === 'meaning' ? q.korean : q.kanji;
+                const place = sentenceMode === 'meaning' ? "일본어로 작문하세요" : "히라가나로 읽는 법을 쓰세요";
+                div.innerHTML = `
+                    <span class="question-label">문제 ${index + 1}</span>
+                    <div class="question-text">${qText}</div>
+                    <div class="input-group">
+                        <input type="text" id="s-input-${index}" placeholder="${place}" autocomplete="off">
+                        <button class="action-btn" onclick="checkSentenceAnswer(${index})">확인</button>
+                        <button class="action-btn show-answer-btn" onclick="showSentenceAnswer(${index})">정답 보기</button>
+                    </div>
+                    <div id="s-result-${index}" class="result"></div>
+                    <div id="s-display-${index}" class="answer-display"></div>
+                `;
+                container.appendChild(div);
+                document.getElementById(`s-input-${index}`).onkeypress = (e) => { if(e.key === 'Enter') checkSentenceAnswer(index); };
+            });
+        }
+
+        function checkSentenceAnswer(index) {
+            const inputVal = normalizeString(document.getElementById(`s-input-${index}`).value);
+            const data = currentSentenceList[index];
+            const resultEl = document.getElementById(`s-result-${index}`);
+            let valid = [data.answer];
+            if (data.accepted) valid = data.accepted;
+            const isCorrect = valid.some(ans => normalizeString(ans) === inputVal);
+            const wasCorrect = resultEl.classList.contains('correct');
+            showSentenceAnswerText(index, true);
+            if (isCorrect) {
+                resultEl.innerHTML = "정답입니다! ⭕"; resultEl.className = "result correct"; resultEl.style.display = "block";
+                if (!wasCorrect) { score++; updateScore(); }
+            } else {
+                resultEl.innerHTML = "오답입니다. ❌"; resultEl.className = "result incorrect"; resultEl.style.display = "block";
+            }
+        }
+
+        function showSentenceAnswer(index) {
+            const resultEl = document.getElementById(`s-result-${index}`);
+            showSentenceAnswerText(index, false);
+            if (!resultEl.classList.contains('correct')) {
+                resultEl.innerHTML = "정답을 확인했습니다."; resultEl.className = "result incorrect"; resultEl.style.display = "block";
+                resultEl.style.backgroundColor = "#e2e3e5"; resultEl.style.color = "#383d41";
+            }
+        }
+
+        function showSentenceAnswerText(index, isAttempted) {
+            const displayEl = document.getElementById(`s-display-${index}`);
+            const q = currentSentenceList[index];
+            let html = `<strong>정답:</strong> ${q.answer}`;
+            if (q.accepted) html += `<br><span style="font-size:0.9em; color:#666;">(또는: ${q.accepted[1]})</span>`;
+            if (sentenceMode === 'meaning') html += `<div style="margin-top:5px; font-size:0.9em; color:#555;">💡 한자: ${q.kanji}</div>`;
+            else html += `<div style="margin-top:5px; font-size:0.9em; color:#555;">💡 뜻: ${q.korean}</div>`;
+            displayEl.innerHTML = html; displayEl.style.display = 'block';
+            displayEl.style.borderLeftColor = (isAttempted && document.getElementById(`s-result-${index}`).classList.contains('correct')) ? '#2ecc71' : '#95a5a6';
+        }
+
+        // ==========================================
+        // 5. 시간/날짜 퀴즈 (Time/Date)
+        // ==========================================
+        function setTimeDateMode(mode) {
+            timeDateMode = mode;
+            document.getElementById('btn-mode-time').className = mode === 'time' ? 'mode-btn active' : 'mode-btn';
+            document.getElementById('btn-mode-date').className = mode === 'date' ? 'mode-btn active' : 'mode-btn';
+            const intro = document.getElementById('timedate-intro');
+            if(mode === 'time') intro.innerHTML = `<h3>⏰ 시간 읽기</h3><ul><li>4, 7, 9시 주의. 30분은 'はん'도 정답.</li></ul>`;
+            else intro.innerHTML = `<h3>📅 날짜 읽기</h3><ul><li>1~10일, 14일, 20일 특수 읽기 주의.</li></ul>`;
+            shuffleTimeDate();
+        }
+
+        function shuffleTimeDate() {
+            const source = timeDateMode === 'time' ? timeQuizData : dateQuizData;
+            currentTimeDateList = JSON.parse(JSON.stringify(source));
+            shuffleArray(currentTimeDateList);
+            score = 0; updateScore();
+            document.getElementById('total-count').textContent = currentTimeDateList.length;
+            renderTimeDateQuiz();
+        }
+
+        function renderTimeDateQuiz() {
+            const container = document.getElementById('timedate-quiz-area');
+            container.innerHTML = '';
+            currentTimeDateList.forEach((q, index) => {
+                const div = document.createElement('div');
+                div.className = 'quiz-container';
+                div.innerHTML = `
+                    <span class="question-label">문제 ${index + 1}</span>
+                    <div class="question-text">${q.q}</div>
+                    <div class="input-group">
+                        <input type="text" id="td-input-${index}" placeholder="히라가나로 입력하세요" autocomplete="off">
+                        <button class="action-btn" onclick="checkTimeDateAnswer(${index})">확인</button>
+                        <button class="action-btn show-answer-btn" onclick="showTimeDateAnswer(${index})">정답 보기</button>
+                    </div>
+                    <div id="td-result-${index}" class="result"></div>
+                    <div id="td-display-${index}" class="answer-display"></div>
+                `;
+                container.appendChild(div);
+                document.getElementById(`td-input-${index}`).onkeypress = (e) => { if(e.key === 'Enter') checkTimeDateAnswer(index); };
+            });
+        }
+
+        function checkTimeDateAnswer(index) {
+            const inputVal = normalizeString(document.getElementById(`td-input-${index}`).value);
+            const data = currentTimeDateList[index];
+            const resultEl = document.getElementById(`td-result-${index}`);
+            let valid = [data.a];
+            if (data.accepted) valid = data.accepted;
+            const isCorrect = valid.some(ans => normalizeString(ans) === inputVal);
+            const wasCorrect = resultEl.classList.contains('correct');
+            showTimeDateAnswerText(index, true);
+            if (isCorrect) {
+                resultEl.innerHTML = "정답입니다! ⭕"; resultEl.className = "result correct"; resultEl.style.display = "block";
+                if (!wasCorrect) { score++; updateScore(); }
+            } else {
+                resultEl.innerHTML = "오답입니다. ❌"; resultEl.className = "result incorrect"; resultEl.style.display = "block";
+            }
+        }
+
+        function showTimeDateAnswer(index) {
+            const resultEl = document.getElementById(`td-result-${index}`);
+            showTimeDateAnswerText(index, false);
+            if (!resultEl.classList.contains('correct')) {
+                resultEl.innerHTML = "정답을 확인했습니다."; resultEl.className = "result incorrect"; resultEl.style.display = "block";
+                resultEl.style.backgroundColor = "#e2e3e5"; resultEl.style.color = "#383d41";
+            }
+        }
+
+        function showTimeDateAnswerText(index, isAttempted) {
+            const displayEl = document.getElementById(`td-display-${index}`);
+            const q = currentTimeDateList[index];
+            let html = `<strong>정답:</strong> ${q.a}`;
+            if (q.accepted && q.accepted.length > 1) {
+                const alts = q.accepted.filter(x => x !== q.a);
+                if(alts.length) html += `<br><span style="font-size:0.9em; color:#666;">(또는: ${alts.join(', ')})</span>`;
+            }
+            displayEl.innerHTML = html; displayEl.style.display = 'block';
+            displayEl.style.borderLeftColor = (isAttempted && document.getElementById(`td-result-${index}`).classList.contains('correct')) ? '#2ecc71' : '#95a5a6';
+        }
+
+        // ==========================================
+        // 6. 하루 일정 퀴즈 (Daily Routine) - 확장됨
+        // ==========================================
+        function setDailyMode(mode) {
+            dailyMode = mode;
+            // 버튼 활성화 상태 초기화
+            document.querySelectorAll('#view-daily .mode-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // 선택된 버튼 활성화 및 설명 텍스트 설정
+            let introText = "";
+            if (mode === 'reading') {
+                document.getElementById('btn-daily-reading').classList.add('active');
+                introText = `<h3>📖 한자 읽기 (히라가나)</h3><ul><li>일본어 문장을 보고 <strong>히라가나</strong>로 읽는 법을 쓰세요.</li></ul>`;
+            } else if (mode === 'meaning') {
+                document.getElementById('btn-daily-meaning').classList.add('active');
+                introText = `<h3>📝 뜻 보고 쓰기</h3><ul><li>한국어 뜻을 보고 일본어 문장(기본형)을 쓰세요.</li></ul>`;
+            } else if (mode === 'masu') {
+                document.getElementById('btn-daily-masu').classList.add('active');
+                introText = `<h3>🔧 ~ます형 바꾸기</h3><ul><li>제시된 기본형 문장을 <strong>정중형(~ます)</strong>으로 바꿔 쓰세요.<br>예: 起きる → おきます</li></ul>`;
+            } else if (mode === 'masen') {
+                document.getElementById('btn-daily-masen').classList.add('active');
+                introText = `<h3>🔧 ~ません형 바꾸기</h3><ul><li>제시된 기본형 문장을 <strong>부정형(~ません)</strong>으로 바꿔 쓰세요.<br>예: 起きる → おきません</li></ul>`;
+            }
+            
+            document.getElementById('daily-intro').innerHTML = introText;
+            shuffleDaily();
+        }
+
+        function shuffleDaily() {
+            currentDailyList = JSON.parse(JSON.stringify(dailyQuizData));
+            shuffleArray(currentDailyList);
+            score = 0; updateScore();
+            document.getElementById('total-count').textContent = currentDailyList.length;
+            renderDailyQuiz();
+        }
+
+        function renderDailyQuiz() {
+            const container = document.getElementById('daily-quiz-area');
+            container.innerHTML = '';
+            currentDailyList.forEach((q, index) => {
+                const div = document.createElement('div');
+                div.className = `quiz-container ${dailyMode === 'reading' || dailyMode === 'masu' || dailyMode === 'masen' ? 'mode-kanji' : ''}`;
+                
+                // 모드에 따라 문제 텍스트 결정
+                let qText = "";
+                let place = "";
+                
+                if (dailyMode === 'reading' || dailyMode === 'masu' || dailyMode === 'masen') {
+                    qText = q.kanji; // 기본 한자 문장 보여줌
+                } else {
+                    qText = q.korean; // 뜻 보여줌
+                }
+
+                // 모드에 따라 플레이스홀더 결정
+                if (dailyMode === 'reading') place = "히라가나로 읽는 법을 쓰세요";
+                else if (dailyMode === 'meaning') place = "일본어로 작문하세요";
+                else if (dailyMode === 'masu') place = "~ます형으로 바꾸세요 (히라가나)";
+                else if (dailyMode === 'masen') place = "~ません형으로 바꾸세요 (히라가나)";
+
+                div.innerHTML = `
+                    <span class="question-label">문제 ${index + 1}</span>
+                    <div class="question-text">${qText}</div>
+                    <div class="input-group">
+                        <input type="text" id="d-input-${index}" placeholder="${place}" autocomplete="off">
+                        <button class="action-btn" onclick="checkDailyAnswer(${index})">확인</button>
+                        <button class="action-btn show-answer-btn" onclick="showDailyAnswer(${index})">정답 보기</button>
+                    </div>
+                    <div id="d-result-${index}" class="result"></div>
+                    <div id="d-display-${index}" class="answer-display"></div>
+                `;
+                container.appendChild(div);
+                document.getElementById(`d-input-${index}`).onkeypress = (e) => { if(e.key === 'Enter') checkDailyAnswer(index); };
+            });
+        }
+
+        function checkDailyAnswer(index) {
+            const inputVal = normalizeString(document.getElementById(`d-input-${index}`).value);
+            const data = currentDailyList[index];
+            const resultEl = document.getElementById(`d-result-${index}`);
+
+            // 모드에 따라 정답 데이터 결정
+            let correctAns = "";
+            if (dailyMode === 'reading') correctAns = data.answer;
+            else if (dailyMode === 'meaning') correctAns = data.answer;
+            else if (dailyMode === 'masu') correctAns = data.masu;
+            else if (dailyMode === 'masen') correctAns = data.masen;
+
+            const isCorrect = normalizeString(correctAns) === inputVal;
+            const wasCorrect = resultEl.classList.contains('correct');
+
+            showDailyAnswerText(index, true);
+
+            if (isCorrect) {
+                resultEl.innerHTML = "정답입니다! ⭕"; resultEl.className = "result correct"; resultEl.style.display = "block";
+                if (!wasCorrect) { score++; updateScore(); }
+            } else {
+                resultEl.innerHTML = "오답입니다. ❌"; resultEl.className = "result incorrect"; resultEl.style.display = "block";
+            }
+        }
+
+        function showDailyAnswer(index) {
+            const resultEl = document.getElementById(`d-result-${index}`);
+            showDailyAnswerText(index, false);
+            if (!resultEl.classList.contains('correct')) {
+                resultEl.innerHTML = "정답을 확인했습니다."; resultEl.className = "result incorrect"; resultEl.style.display = "block";
+                resultEl.style.backgroundColor = "#e2e3e5"; resultEl.style.color = "#383d41";
+            }
+        }
+
+        function showDailyAnswerText(index, isAttempted) {
+            const displayEl = document.getElementById(`d-display-${index}`);
+            const q = currentDailyList[index];
+            
+            let correctAns = "";
+            let hintLabel = "";
+            let hintText = "";
+
+            if (dailyMode === 'reading') {
+                correctAns = q.answer;
+                hintLabel = "뜻";
+                hintText = q.korean;
+            } else if (dailyMode === 'meaning') {
+                correctAns = q.answer;
+                hintLabel = "한자";
+                hintText = q.kanji;
+            } else if (dailyMode === 'masu') {
+                correctAns = q.masu;
+                hintLabel = "기본형";
+                hintText = q.kanji;
+            } else if (dailyMode === 'masen') {
+                correctAns = q.masen;
+                hintLabel = "기본형";
+                hintText = q.kanji;
+            }
+
+            let html = `<strong>정답:</strong> ${correctAns}`;
+            html += `<div style="margin-top:5px; font-size:0.9em; color:#555;">💡 ${hintLabel}: ${hintText}</div>`;
+
+            displayEl.innerHTML = html; displayEl.style.display = 'block';
+            displayEl.style.borderLeftColor = (isAttempted && document.getElementById(`d-result-${index}`).classList.contains('correct')) ? '#2ecc71' : '#95a5a6';
         }
 
     </script>
 </body>
 </html>
+
