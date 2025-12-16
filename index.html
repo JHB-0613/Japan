@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일본어 문장 작문 퀴즈 (최종 수정버전)</title>
+    <style>
+        body {
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .intro {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .intro ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .intro li {
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .quiz-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .question-box {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+        .question-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .input-group {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-width: 200px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 1em;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button.show-answer {
+            background-color: #95a5a6;
+        }
+        button.show-answer:hover {
+            background-color: #7f8c8d;
+        }
+        .result {
+            margin-top: 10px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        .answer-display {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            color: #2c3e50;
+            border-left: 5px solid #3498db;
+        }
+        .score-board {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>일본어 문장 작문 퀴즈 (최종)</h1>
+    
+    <div class="intro">
+        <h3>📝 퀴즈 규칙</h3>
+        <ul>
+            <li>PDF에 포함된 <strong>모든 문장</strong>(총 21문제)을 테스트합니다.</li>
+            <li><strong>한자는 히라가나로</strong>, <strong>가타카나는 가타카나로</strong> 적어야 정답입니다.</li>
+            <li>가타카나 장음은 <strong>'ー'</strong> 기호를 정확히 사용해주세요. (예: ラーメン)</li>
+            <li>'아주/매우'는 <strong>だい / とても</strong> 모두 정답으로 인정됩니다.</li>
+        </ul>
+    </div>
+
+    <div id="quiz-area">
+        </div>
+
+    <div class="score-board">
+        맞은 개수: <span id="score">0</span> / <span id="total-count">0</span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 퀴즈 데이터 (안전하게 수정됨)
+            const quizData = [
+                { id: 1, korean: "좋아하는 과일은 무엇입니까?", answer: "すきな くだものは なんですか" },
+                { id: 2, korean: "저는 사과를 좋아합니다.", answer: "わたしは りんごが すきです" },
+                { id: 3, korean: "좋아하는 동물은 무엇입니까?", answer: "すきな どうぶつは なんですか" },
+                { id: 4, korean: "저는 고양이를 좋아합니다.", answer: "わたしは ねこが すきです" },
+                { id: 5, korean: "좋아하는 음식은 무엇입니까?", answer: "すきな たべものは なんですか" },
+                { 
+                    id: 6, 
+                    korean: "저는 라멘을 매우 좋아합니다.", 
+                    answer: "わたしは ラーメンが だいすきです",
+                    accepted: ["わたしは ラーメンが だいすきです", "わたしは ラーメンが とても すきです"] 
+                },
+                { id: 7, korean: "싫어하는 과일은 무엇입니까?", answer: "きらいな くだものは なんですか" },
+                { id: 8, korean: "저는 사과를 싫어합니다.", answer: "わたしは りんごが きらいです" },
+                { id: 9, korean: "싫어하는 운동은 무엇입니까?", answer: "きらいな うんどうは なんですか" },
+                { id: 10, korean: "저는 수영을 싫어합니다.", answer: "わたしは すいえいが きらいです" },
+                { id: 11, korean: "나는 술을 싫어한다. (반말)", answer: "わたしは おさけが きらいだ" },
+                { 
+                    id: 12, 
+                    korean: "나는 담배 냄새를 아주 싫어해. (반말)", 
+                    answer: "わたしは タバコのにおいが だいきらいだ",
+                    accepted: ["わたしは タバコのにおいが だいきらいだ", "わたしは タバコのにおいが とても きらいだ"] 
+                },
+                { id: 13, korean: "당신은 영어를 잘합니까?", answer: "あなたは えいごが じょうずですか" },
+                { id: 14, korean: "아니요, 저는 영어를 못합니다.", answer: "いいえ、わたしは えいごが へたです" },
+                { id: 15, korean: "일본어를 잘합니다.", answer: "にほんごが じょうずです" },
+                { id: 16, korean: "나는 일본어는 잘하지만, 영어는 잘 못해. (반말)", answer: "わたしは にほんごは じょうずだが、えいごは へただ" },
+                { id: 17, korean: "그녀는 피아노를 잘 치는 학생입니다.", answer: "かのじょは ピアノが じょうずな がくせいです" },
+                { id: 18, korean: "축구는 그가 제일 잘 합니다.", answer: "サッカーは かれが いちばん じょうずです" },
+                { id: 19, korean: "저는 운동을 아주 못합니다.", answer: "わたしは うんどうが とても へたです" },
+                { id: 20, korean: "수영은 잘 하지만, 테니스는 잘 못한다. (반말)", answer: "すいえいは じょうずだが、テニスは へただ" },
+                { id: 21, korean: "나는 요리를 못 하는 남자를 싫어한다. (반말)", answer: "わたしは りょうりが へたな おとこが きらいだ" }
+            ];
+
+            let score = 0;
+            const quizArea = document.getElementById('quiz-area');
+            const scoreDisplay = document.getElementById('score');
+            document.getElementById('total-count').textContent = quizData.length;
+
+            // 문자열 정규화 함수
+            function normalizeString(str) {
+                return str.replace(/[\s\u3000\u00A0\?\.\,\!。、？]/g, '');
+            }
+
+            // 문제 생성 함수
+            quizData.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'quiz-container question-box';
+                
+                questionDiv.innerHTML = `
+                    <div class="question-text">문제 ${index + 1}. ${q.korean}</div>
+                    <div class="input-group">
+                        <input type="text" id="input-${index}" placeholder="일본어로 입력하세요" autocomplete="off">
+                        <button id="btn-${index}">확인</button>
+                        <button class="show-answer" id="show-${index}">정답 보기</button>
+                    </div>
+                    <div id="result-${index}" class="result"></div>
+                    <div id="answer-display-${index}" class="answer-display" style="display:none;">
+                        <strong>정답:</strong> ${q.answer}
+                    </div>
+                `;
+                quizArea.appendChild(questionDiv);
+
+                // 이벤트 리스너 추가
+                document.getElementById(`btn-${index}`).addEventListener('click', () => checkAnswer(index));
+                document.getElementById(`show-${index}`).addEventListener('click', () => showAnswer(index));
+                
+                // 엔터키 입력 지원
+                document.getElementById(`input-${index}`).addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        checkAnswer(index);
+                    }
+                });
+            });
+
+            // 정답 확인 함수
+            window.checkAnswer = function(index) {
+                const inputEl = document.getElementById(`input-${index}`);
+                const resultEl = document.getElementById(`result-${index}`);
+                const answerDisplayEl = document.getElementById(`answer-display-${index}`);
+                
+                const userAnswer = normalizeString(inputEl.value);
+                const questionData = quizData[index];
+                
+                let validAnswers = [questionData.answer];
+                if (questionData.accepted) {
+                    validAnswers = questionData.accepted;
+                }
+
+                const isCorrect = validAnswers.some(ans => normalizeString(ans) === userAnswer);
+                const wasCorrect = resultEl.classList.contains('correct');
+
+                if (isCorrect) {
+                    resultEl.textContent = "정답입니다! ⭕";
+                    resultEl.className = "result correct";
+                    answerDisplayEl.style.display = 'block';
+                    
+                    if (!wasCorrect) {
+                        score++;
+                        scoreDisplay.textContent = score;
+                    }
+                } else {
+                    resultEl.textContent = "오답입니다. 다시 시도해보세요. ❌";
+                    resultEl.className = "result incorrect";
+                }
+            };
+
+            // 정답 보기 함수
+            window.showAnswer = function(index) {
+                const answerDisplayEl = document.getElementById(`answer-display-${index}`);
+                const resultEl = document.getElementById(`result-${index}`);
+                const questionData = quizData[index];
+
+                let displayHtml = `<strong>정답:</strong> ${questionData.answer}`;
+                if (questionData.accepted) {
+                     displayHtml += `<br><span style="font-size:0.9em; color:#666;">(또는: ${questionData.accepted[1]})</span>`;
+                }
+                
+                answerDisplayEl.innerHTML = displayHtml;
+                answerDisplayEl.style.display = 'block';
+                
+                if (!resultEl.classList.contains('correct')) {
+                    resultEl.textContent = "정답을 확인했습니다.";
+                    resultEl.className = "result incorrect";
+                    resultEl.style.backgroundColor = "#e2e3e5";
+                    resultEl.style.color = "#383d41";
+                }
+            };
+        });
+    </script>
+</body>
+</html>
